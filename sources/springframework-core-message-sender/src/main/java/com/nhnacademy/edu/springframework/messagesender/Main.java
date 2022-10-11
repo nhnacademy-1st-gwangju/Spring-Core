@@ -8,7 +8,5 @@ public class Main {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
 
         context.getBean("messageSendService", MessageSendService.class).doSendMessage();
-
-        context.close();
     }
 }

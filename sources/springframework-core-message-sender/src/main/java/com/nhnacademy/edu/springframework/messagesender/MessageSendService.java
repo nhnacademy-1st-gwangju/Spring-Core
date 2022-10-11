@@ -11,7 +11,7 @@ public class MessageSendService {
     public MessageSendService() {
     }
 
-    public void setMessageSender(MessageSender messageSender) {
+    public void setSmsMessageSender(MessageSender messageSender) {
         System.out.println("created by setMessageSender");
         this.messageSender = messageSender;
     }
