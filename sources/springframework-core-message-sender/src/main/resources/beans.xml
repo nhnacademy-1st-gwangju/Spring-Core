@@ -5,7 +5,7 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="messageSendService" class="com.nhnacademy.edu.springframework.messagesender.MessageSendService">
-        <constructor-arg ref="smsMessageSender" />
+        <property name="messageSender" ref="smsMessageSender"/>
     </bean>
 
 <!--    <bean id="emailMessageSender" class="com.nhnacademy.edu.springframework.messagesender.EmailMessageSender" scope="singleton"-->
