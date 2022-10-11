@@ -6,16 +6,14 @@ public class Main {
 
     public static void main(String[] args) {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
-        MessageSender emailMessageSender = context.getBean("emailMessageSender", EmailMessageSender.class);
-        MessageSender smsMessageSender = context.getBean("smsMessageSender", SmsMessageSender.class);
+        User user = new User("songs4805@naver.com", "82-10-1111-1111");
 
-        MessageSender emailMessageSender2 = context.getBean("emailMessageSender", EmailMessageSender.class);
-        MessageSender smsMessageSender2 = context.getBean("smsMessageSender", SmsMessageSender.class);
+        context.getBean("emailMessageSender", EmailMessageSender.class).sendMessage(user, "message");
+        context.getBean("smsMessageSender", SmsMessageSender.class).sendMessage(user, "message");
 
-        emailMessageSender.sendMessage(new User("songs4805@naver.com", "82-10-1111-1111"), "message");
-        smsMessageSender.sendMessage(new User("songs4805@naver.com", "82-10-1111-1111"), "message");
+        context.getBean("emailMessageSender", EmailMessageSender.class).sendMessage(user, "message");
+        context.getBean("smsMessageSender", SmsMessageSender.class).sendMessage(user, "message");
 
-        emailMessageSender2.sendMessage(new User("songs4805@naver.com", "82-10-1111-1111"), "message");
-        smsMessageSender2.sendMessage(new User("songs4805@naver.com", "82-10-1111-1111"), "message");
+        context.close();
     }
 }
