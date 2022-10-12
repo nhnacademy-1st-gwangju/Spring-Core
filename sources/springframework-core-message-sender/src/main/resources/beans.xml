@@ -22,4 +22,5 @@
         <qualifier type="com.nhnacademy.edu.springframework.messagesender.Sms"/>
     </bean>
 
+    <context:property-placeholder location="application.properties"/>
 </beans>
