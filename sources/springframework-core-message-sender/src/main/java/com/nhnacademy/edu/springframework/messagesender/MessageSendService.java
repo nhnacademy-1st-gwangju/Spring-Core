@@ -1,18 +1,14 @@
 package com.nhnacademy.edu.springframework.messagesender;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 public class MessageSendService {
 
-    private MessageSender messageSender;
+    private final MessageSender messageSender;
 
-    public MessageSendService(MessageSender messageSender) {
-        this.messageSender = messageSender;
-    }
-
-    public MessageSendService() {
-    }
-
-    public void setSmsMessageSender(MessageSender messageSender) {
-        System.out.println("created by setMessageSender");
+    @Autowired
+    public MessageSendService(@Qualifier(value = "smsMessageSender") MessageSender messageSender) {
         this.messageSender = messageSender;
     }
 
