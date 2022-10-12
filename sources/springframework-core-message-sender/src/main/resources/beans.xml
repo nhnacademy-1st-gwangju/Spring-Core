@@ -15,10 +15,11 @@
     <bean id="messageSendService" class="com.nhnacademy.edu.springframework.messagesender.MessageSendService">
     </bean>
 
-    <bean id="emailMessageSender" class="com.nhnacademy.edu.springframework.messagesender.EmailMessageSender" scope="singleton">
+    <bean id="emailMessageSender" class="com.nhnacademy.edu.springframework.messagesender.EmailMessageSender">
     </bean>
 
-    <bean id="smsMessageSender" class="com.nhnacademy.edu.springframework.messagesender.SmsMessageSender" scope="prototype">
+    <bean id="smsMessageSender" class="com.nhnacademy.edu.springframework.messagesender.SmsMessageSender">
+        <qualifier type="com.nhnacademy.edu.springframework.messagesender.Sms"/>
     </bean>
 
 </beans>
