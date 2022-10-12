@@ -7,7 +7,7 @@ public class MessageSendService {
     private final MessageSender messageSender;
 
     @Autowired
-    public MessageSendService(@Sms MessageSender messageSender) {
+    public MessageSendService(MessageSender messageSender) {
         this.messageSender = messageSender;
     }
 

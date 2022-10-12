@@ -1,19 +1,15 @@
 package com.nhnacademy.edu.springframework.messagesender;
 
+import com.nhnacademy.edu.springframework.config.MainConfig;
+import com.nhnacademy.edu.springframework.config.ServiceConfig;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Main {
 
     public static void main(String[] args) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MainConfig.class, ServiceConfig.class);
 
-        String basePackage = "com.nhnacademy.edu.springframework.config";
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(basePackage);
-
-        MessageSender emailMessageSender = MessageSender.class.cast(context.getBean("emailMessageSender"));
-        MessageSender smsMessageSender = MessageSender.class.cast(context.getBean("smsMessageSender"));
-
-        User user = new User("songs4805@naver.com", "82-10-1111-1111");
-        emailMessageSender.sendMessage(user, "message");
-        smsMessageSender.sendMessage(user, "message");
+        MessageSendService messageSendService = context.getBean("messageSendService", MessageSendService.class);
+        messageSendService.doSendMessage();
     }
 }
