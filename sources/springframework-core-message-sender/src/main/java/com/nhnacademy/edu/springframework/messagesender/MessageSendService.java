@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class MessageSendService {
 
-    @Value("${name}")
-    private String name;
-
     private final MessageSender messageSender;
+    private final String name;
 
     @Autowired
-    public MessageSendService(@Sms MessageSender messageSender) {
+    public MessageSendService(@Sms MessageSender messageSender,
+                              @Value("${name}") String name) {
         this.messageSender = messageSender;
+        this.name = name;
     }
 
     public void doSendMessage() {
