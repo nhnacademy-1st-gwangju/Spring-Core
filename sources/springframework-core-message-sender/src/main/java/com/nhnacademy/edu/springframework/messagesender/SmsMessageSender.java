@@ -1,8 +1,10 @@
 package com.nhnacademy.edu.springframework.messagesender;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
+@Primary
 public class SmsMessageSender implements MessageSender {
 
     public SmsMessageSender() {
