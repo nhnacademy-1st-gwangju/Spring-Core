@@ -1,5 +1,6 @@
 package com.nhnacademy.edu.springframework.messagesender;
 
+import com.nhnacademy.edu.springframework.aop.AopTest;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,9 @@ public class SmsMessageSender implements MessageSender {
     }
 
     @Override
-    public void sendMessage(User user, String message) {
+    @AopTest
+    public boolean sendMessage(User user, String message) {
         System.out.printf("SMS Message Sent to %s : %s\n", user.getPhoneNumber(), message);
+        return true;
     }
 }

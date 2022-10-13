@@ -3,6 +3,7 @@ package com.nhnacademy.edu.springframework.aop;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -26,8 +27,8 @@ public class TimeAop {
         }
     }
 
-//    @Before("@annotation(AopTest)")
-//    public void test(AopTest aopTest) {
-//        System.out.println(aopTest.value());
-//    }
+    @Before("@annotation(aopTest)")
+    public void test(AopTest aopTest) {
+        System.out.println(aopTest.value());
+    }
 }

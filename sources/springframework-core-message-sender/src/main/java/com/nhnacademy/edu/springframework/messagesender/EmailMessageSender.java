@@ -14,7 +14,8 @@ public class EmailMessageSender implements MessageSender {
     }
 
     @Override
-    public void sendMessage(User user, String message) {
+    public boolean sendMessage(User user, String message) {
         System.out.printf("Email Message Sent %s : %s\n", user.getEmail(), message);
+        return true;
     }
 }
