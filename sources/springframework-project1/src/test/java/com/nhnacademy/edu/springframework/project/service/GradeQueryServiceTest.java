@@ -22,7 +22,7 @@ class GradeQueryServiceTest {
     }
 
     @Test
-    @DisplayName("해당 이름의 학생이 있는 경우 정상으로 동작한다.")
+    @DisplayName("해당 이름의 학생이 있는 경우 정상적으로 동작한다.")
     void getScoreByStudentName() throws Exception {
         //given
         String name = "A";
@@ -46,7 +46,7 @@ class GradeQueryServiceTest {
     }
 
     @Test
-    @DisplayName("해당 학번의 학생이 있는 경우 정상으로 동작한다.")
+    @DisplayName("해당 학번의 학생이 있는 경우 정상적으로 동작한다.")
     void getScoreByStudentSeq() throws Exception {
         //given
         int number = 3;

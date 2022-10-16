@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CsvStudents implements Students {
 
-    private static CsvStudents instance;
+    private static CsvStudents instance = new CsvStudents();
 
     private Collection<Student> list;
     private String path;
@@ -27,9 +27,6 @@ public class CsvStudents implements Students {
      * Java Singleton 패턴으로 getInstance() 를 구현하세요.
      **/
     public static Students getInstance() {
-        if (instance == null) {
-            instance = new CsvStudents();
-        }
         return instance;
     }
 

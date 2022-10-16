@@ -1,7 +1,6 @@
 package com.nhnacademy.edu.springframework.project.repository;
 
 import com.nhnacademy.edu.springframework.project.service.Student;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -73,7 +72,7 @@ class StudentsTest {
         Student student = studentList.stream().filter(o -> o.getScore() != null)
                 .findAny()
                 .orElseThrow(NoSuchElementException::new);
-        Assertions.assertThat(student.getScore()).isNotNull();
+        assertThat(student.getScore()).isNotNull();
     }
 
     @AfterEach

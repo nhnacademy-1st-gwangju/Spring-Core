@@ -37,7 +37,6 @@ class StudentServiceTest {
 
         //when
         Collection<Student> passedStudents = defaultStudentService.getPassedStudents();
-        System.out.println(passedStudents);
 
         //then
         assertThat(passedStudents).hasSize(expected);
@@ -48,7 +47,6 @@ class StudentServiceTest {
     void getStudentsOrderByScore() throws Exception {
         //when
         List<Student> orderByScore = (ArrayList<Student>) defaultStudentService.getStudentsOrderByScore();
-        System.out.println(orderByScore);
 
         //then
         for (int i = 0; i < orderByScore.size()-1; i++) {

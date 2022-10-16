@@ -6,7 +6,7 @@ import java.util.List;
 
 public class CsvScores implements Scores {
 
-    private static CsvScores instance;
+    private static CsvScores instance = new CsvScores();
     private List<Score> list;
     private String path;
 
@@ -23,9 +23,6 @@ public class CsvScores implements Scores {
      * Java Singleton 패턴으로 getInstance() 를 구현하세요.
      **/
     public static Scores getInstance() {
-        if (instance == null) {
-            instance = new CsvScores();
-        }
         return instance;
     }
 
