@@ -10,23 +10,8 @@ import org.springframework.util.StopWatch;
 @Component
 public class TimeAop {
 
-    @Around("execution(* com.nhnacademy.edu.springframework.project.service.*.*(..))")
-    public Object serviceTimeLogging(ProceedingJoinPoint point) throws Throwable {
-        StopWatch stopWatch = new StopWatch("logging");
-
-        try {
-            stopWatch.start();
-            Object proceed = point.proceed();
-
-            return proceed;
-        } finally {
-            stopWatch.stop();
-            System.out.println("["+ point.getSignature().getDeclaringTypeName() +"].["+ point.getSignature().getName() + "] [" + stopWatch.getTotalTimeMillis() + "]ms");
-        }
-    }
-
-    @Around("execution(* com.nhnacademy.edu.springframework.project.repository.*.*(..))")
-    public Object repositoryTimeLogging(ProceedingJoinPoint point) throws Throwable {
+    @Around("execution(* com.nhnacademy.edu.springframework.project..*.*(..))")
+    public Object timeLogging(ProceedingJoinPoint point) throws Throwable {
         StopWatch stopWatch = new StopWatch("logging");
 
         try {
