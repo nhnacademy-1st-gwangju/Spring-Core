@@ -1,5 +1,8 @@
 package com.nhnacademy.edu.springframework.project.repository;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -7,12 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Primary
+@PropertySource("classpath:application.properties")
 public class CsvDataParser implements DataParser {
 
     private List<WaterBill> list;
+    @Value("${csv_path}")
+    private String path;
+
 
     public CsvDataParser() {
         this.list = new ArrayList<>();
+    }
+
+    public String getPath() {
+        return path;
     }
 
     @Override

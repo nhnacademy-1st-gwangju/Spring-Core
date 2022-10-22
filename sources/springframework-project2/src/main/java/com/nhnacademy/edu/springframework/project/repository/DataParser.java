@@ -8,4 +8,5 @@ import java.util.List;
 @Component
 public interface DataParser {
     List<WaterBill> parse(String path) throws IOException;
+    String getPath();
 }

@@ -26,7 +26,7 @@ public class DefaultChargeRepository implements ChargeRepository {
 
     @Override
     public void load(String path) throws IOException {
-        this.waterBills = parser.parse(path);
+        this.waterBills = parser.parse(parser.getPath());
     }
 
     @Override

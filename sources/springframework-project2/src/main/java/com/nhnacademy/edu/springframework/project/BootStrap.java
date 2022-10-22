@@ -15,7 +15,7 @@ public class BootStrap {
     public static void main(String[] args) throws IOException {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("com.nhnacademy.edu.springframework.project.config");
         ChargeRepository chargeRepository = context.getBean(ChargeRepository.class);
-        chargeRepository.load("src/main/resources/data/Tariff_20220331.csv");
+        chargeRepository.load("path는 자동으로 지정됩니다.");
 
         WaterChargeService chargeService = context.getBean(WaterChargeService.class);
 

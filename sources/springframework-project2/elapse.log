@@ -1,0 +1,6 @@
+20221022 22:32:41.178 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.repository.CsvDataParser].[getPath] [2]ms 
+20221022 22:32:41.184 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.repository.CsvDataParser].[parse] [2]ms 
+20221022 22:32:41.184 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.repository.DefaultChargeRepository].[load] [20]ms 
+20221022 22:32:43.241 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.repository.DefaultChargeRepository].[find] [1]ms 
+20221022 22:32:43.242 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.service.DefaultWaterChargeService].[calculate] [7]ms 
+20221022 22:32:43.258 [main] INFO  [TimeAop:28] - [com.nhnacademy.edu.springframework.project.service.DefaultResultReport].[report] [13]ms 
