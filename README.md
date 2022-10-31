@@ -9,3 +9,5 @@ XML기반 IoC, DI부터 Annotation기반 IoC, DI와 AOP까지 다루는 Spring C
 - [Spring DI (Annotation)](./contents/annotation_di.md)
 - [Java Configuration](./contents/configuration.md)
 - AOP
+- Spring Framework Testing
+- Spring Core가 제공하는 기타 기능
