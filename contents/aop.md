@@ -251,3 +251,421 @@ bean(idOrNameOfBean)
 ```
 
 ## 포인트컷 - 조합
+- 포인트컷 표현식은 `&&, ||, !` 으로 조합할 수 있다.
+
+```java
+// anyPublicOperation 포인트컷은 모든 public 메소드 실행에 매칭
+@Pointcut("execution(public * *(..))")
+private void anyPublicOperation() {} 
+
+// inTrading 포인트컷은 com.xyz.myapp.trading 패키지 내의 메소드 실행에 매칭
+@Pointcut("within(com.xyz.myapp.trading..*)")
+private void inTrading() {} 
+
+// tradingOperation 포인트컷은 com.xyz.myapp.trading 패키지 내의 퍼블릭 메소드 실행에 매칭
+@Pointcut("anyPublicOperation() && inTrading()")
+private void tradingOperation() {} 
+```
+
+// [참고: 6.2.3.2. Combining pointcut expressions](https://docs.spring.io/spring-framework/docs/2.0.x/reference/aop.html)
+
+## 포인트컷 - 공통 포인트컷 공유
+- 대규모 시스템에서 공통적인 포인트컷을 정의하여 참조하는 방식을 사용하는 것이 유리하다.
+
+```java
+package com.xyz.myapp;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+
+@Aspect
+public class CommonPointcuts {
+
+    /**
+     * com.xyz.myapp.web 패키지와 서브패키지(web layer)를 
+     * 지정하는 포인트컷
+     */
+    @Pointcut("within(com.xyz.myapp.web..*)")
+    public void inWebLayer() {}
+
+    /**
+     * com.xyz.myapp.service 패키지와 서브패키지(service layer)를 
+     * 지정하는 포인트컷
+     */
+    @Pointcut("within(com.xyz.myapp.service..*)")
+    public void inServiceLayer() {}
+
+    /**
+     * com.xyz.myapp.dao 패키지와 서브패키지(data access layer)를 
+     * 지정하는 포인트컷
+     */
+    @Pointcut("within(com.xyz.myapp.dao..*)")
+    public void inDataAccessLayer() {}
+
+    /**
+     * 아래 businessService 포인트컷 정의는 서비스인터페이스가 service 패키지에 있고 
+     * 구현체가 service 패키지 하위에 포한된 것을 가정하고 선언되어 있다.
+     *
+     * com.xyz.myapp.send.service, com.xyz.myapp.receive.service 와 같이 기능단위의 패키지 구성이라면  "execution(* com.xyz.myapp..service.*.*(..))" 포인트컷 표현식을 사용할 수 있다.
+     * 
+     * 만약 스프링빈 이름이 Service 로 항상 끝난다면 "bean(*Service)" 표현식을 사용할 수도 있다.
+     */
+    @Pointcut("execution(* com.xyz.myapp.service.*.*(..))")
+    public void businessService() {}
+
+    /**
+     * 아래 dataAccessOperation 포인트컷 정의는 Dao 인터페이스가 dao 패키지에 있고 
+     * 구현체가 dao 패키지 하위에 포한된 것을 가정하고 선언되어 있다.
+     */
+    @Pointcut("execution(* com.xyz.myapp.dao.*.*(..))")
+    public void dataAccessOperation() {}
+
+}
+```
+
+- 공유된 포인트컷 Aspect는 다른 설정에서 참조할 수 있다.
+
+```xml
+<aop:config>
+    <aop:advisor
+        pointcut="com.xyz.myapp.CommonPointcuts.businessService()"
+        advice-ref="tx-advice"/>
+</aop:config>
+
+<tx:advice id="tx-advice">
+    <tx:attributes>
+        <tx:method name="*" propagation="REQUIRED"/>
+    </tx:attributes>
+</tx:advice>
+```
+
+## 포인트컷 - 표현식 예제
+- **Spring AOP는 주로 execution 포인트컷 지정자를 사용한다.**
+
+```
+execution(modifiers-pattern? ret-type-pattern declaring-type-pattern?name-pattern(param-pattern) throws-pattern?)
+```
+
+- 모든 public 메소드
+
+```java
+execution(public * *(..))
+```
+
+- get~ 으로 시작하는 모든 메소드
+
+```java
+execution(* get*(..))
+```
+
+- `com.nhnent.edu.spring_core` 패키지에 있는 모든 메소드
+
+```java
+execution(* com.nhnent.edu.spring_core.*.*(..))
+```
+
+- `com.nhnent.edu.spring_core.service.MemberService` 인터페이스에 정의된 모든 메소드
+
+```java
+execution(com.nhnent.edu.spring_core.service.MemberService.*(..))
+```
+
+- `com.nhnent.edu.spring_core.service` 패키지의 모든 메소드실행
+
+```java
+within(com.nhnent.edu.spring_core.service.*)
+```
+
+- `TestService` 프록시 구현체의 메소드 실행
+
+```java
+this(com.nhnent.edu.spring_core.service.TestService)
+```
+
+- `TestService` 인터페이스의 구현 객체의 메소드 실행
+
+```java
+target(com.nhnent.edu.spring_core.service.TestService)
+```
+
+- 런타임에 `Serializable` 타입의 단일 파라미터가 전달되는 메소드 실행 (인자 값 검사 기능에 많이 사용된다.)
+
+```java
+args(java.io.Serializable)
+```
+
+- `@Transactional` 어노테이션을 가진 모든 타겟 객체의 메소드 실행
+
+```java
+@target(org.springframework.transaction.annotation.Transactional)
+```
+
+## Advice
+Advice는 포인트컷과 관련하여 메소드 실행 전, 후, 전/후 를 결정하기 위해 사용한다.
+
+|Advice 형태|설명|
+|--|--|
+|before|Join Point 앞에서 실행할 Advice|
+|After|Join Point 뒤에서 실행할 Advice|
+|AfterReturning|Join Point가 완전히 정상 종료된 뒤 실행하는 Advice|
+|Around|Join Point 앞과 뒤에서 실행되는 Advice|
+|AfterThrowing|Join Point에서 예외가 발생했을 때 실행되는 Advice|
+
+![](https://velog.velcdn.com/images/songs4805/post/4ac51bbe-54b0-42ee-8b1a-f9e2c00cd0d7/image.png)
+
+## Advice - Advice 선언
+Advice의 포인트컷은 미리 선언한 포인트컷을 참조하거나 직접 포인트컷 표현식을 사용할 수 있다.
+
+## Advice - Before
+Aspect 내에 조인포인트 전에 실행을 위한 `@Before` Advice를 다음과 같이 선언한다.
+
+```java
+@Aspect
+public class BeforeExample {
+
+    @Before("com.xyz.myapp.CommonPointcuts.dataAccessOperation()")
+    public void doAccessCheck() {
+        // ...
+    }
+
+    @Before("execution(* com.xyz.myapp.dao.*.*(..))")
+    public void doAccessCheck() {
+        // ...
+    }
+}
+```
+
+## Advice - AfterReturning
+- Aspect 내에 조인포인트(메소드 실행) 반환 후에 실행을 위한 `@AfterReturning` Advice 를 다음과 같이 선언한다.
+- 메소드 실행중에 Exception 이 발생하여 throw 될때는 `@AfterReturning` Advice가 실행되지 않는다.
+
+```java
+@Aspect
+public class AfterReturningExample {
+
+    @AfterReturning("com.xyz.myapp.CommonPointcuts.dataAccessOperation()")
+    public void doAccessCheck() {
+        // ...
+    }
+}
+```
+
+- Advice 내부에서 반환 값에 접근해야 하는 경우, returning 속성을 이용해서 advice 메소드 파라미터에 바인드 할 수 있다.
+
+```java
+@Aspect
+public class AfterReturningExample {
+
+    @AfterReturning(
+        pointcut="com.xyz.myapp.CommonPointcuts.dataAccessOperation()",
+        returning="retVal")
+    public void doAccessCheck(Object retVal) {
+        // ...
+    }
+}
+```
+
+## Advice - After Throwing Advice
+- Aspect 내에 조인포인트(메소드 실행) 에서 Exception 이 발생한 후에 실행을 위한 @AfterThrowing Advice 를 다음과 같이 선언한다.
+
+```java
+@Aspect
+public class AfterThrowingExample {
+
+    @AfterThrowing("com.xyz.myapp.CommonPointcuts.dataAccessOperation()")
+    public void doRecoveryActions() {
+        // ...
+    }
+}
+```
+
+- 원하는 타입의 Exception이 발생할 때만 매칭이 되고, 발생한 Exception에 접근하기를 원한다면 throwing 속성을 추가할 수 있다.
+
+```java
+@Aspect
+public class AfterThrowingExample {
+
+    @AfterThrowing(
+        pointcut="com.xyz.myapp.CommonPointcuts.dataAccessOperation()",
+        throwing="ex")
+    public void doRecoveryActions(DataAccessException ex) {
+        // ...
+    }
+}
+```
+
+## Advice - After (Finally) Advice
+- Aspect 내에 조인 포인트(메소드 실행)에서 종료될 때 실행을 위한 `@After` Advice를 다음과 같이 선언한다.
+- try-catch 구문의 finally 구문과 유사하기 때문에 메소드 실행중에 exception이 발생하더라도 실행한다.
+
+```java
+@Aspect
+public class AfterFinallyExample {
+
+    @After("com.xyz.myapp.CommonPointcuts.dataAccessOperation()")
+    public void doReleaseLock() {
+        // ...
+    }
+}
+```
+
+## Advice - Around Advice
+- 메소드 실행의 전, 후에 advice를 실행할 수 있는 기회를 제공한다.
+- 심지어 대상 메소드가 실행하거나 하지 않도록 제어할 수도 있다.
+- Around Advice는 Object를 반환해야 하고, 첫 번째 인자는 `ProceedingJoinPoint`이어야 한다.
+- `ProceedingJoinPoint`의 `proceed()`를 호출하면 타겟 메소드가 실행된다.
+
+```java
+@Aspect
+public class AroundExample {
+
+    @Around("com.xyz.myapp.CommonPointcuts.businessService()")
+    public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
+        // start stopwatch
+        Object retVal = pjp.proceed();
+        // stop stopwatch
+        return retVal;
+    }
+}
+```
+
+## Advice - JoinPoint 활용하기
+모든 Advice 메소드에는 첫번째 인자로 `JoinPoint`를 받을 수 있다. (Around Advice는 `JoinPoint`의 서브 클래스인 `ProceedingJoinPoint`를 반드시 사용해야 한다.)
+
+### JoinPoint의 메소드
+- `getArgs()` : 타겟 메소드의 인자
+- `getThis()` : 프록시 객체
+- `getTarget()` : 타겟 객체
+- `getSignature()` : 타겟 객체의 메소드 시그니쳐
+- `toString()` : 타겟 객체의 메소드 정보
+
+## Advice - Advice에 파라미터 넘기기
+- args 포인트컷 지정자를 이용해서 `Advice`에 파라미터를 넘길 수 있다.
+
+```java
+@Before("com.xyz.myapp.CommonPointcuts.dataAccessOperation() && args(account,..)")
+public void validateAccount(Account account) {
+    // ...
+}
+```
+
+- args(account,..) 표현식은 두 가지 의미를 내포한다.
+  - 1개 이상의 파라미터를 받는 메소드 실행에 매칭, 첫 번재 인자는 Account 클래스의 인스턴스여야 한다.
+  - Account 객체는 Advice의 account 파라미터에 바인딩한다.
+- 포인트컷과 Advice를 분리해서 선언하는 경우는 다음과 같이 설정할 수 잇다.
+
+```java
+@Pointcut("com.xyz.myapp.CommonPointcuts.dataAccessOperation() && args(account,..)")
+private void accountDataAccessOperation(Account account) {}
+
+@Before("accountDataAccessOperation(account)")
+public void validateAccount(Account account) {
+    // ...
+}
+```
+
+## Advice - Custom Annotation 매칭
+- Annotation 을 기준으로 매칭한 경우의 예제는 다음과 같다.
+- `Auditable.java` 로 Annotation 을 작성한다.
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Auditable {
+    AuditCode value();
+}
+```
+
+- `@annotation` 포인트컷 지정자로 설정된 Annotation을 Advice 파라미터로 참조할 수 있다.
+
+```java
+@Before("com.xyz.lib.Pointcuts.anyPublicMethod() && @annotation(auditable)")
+public void audit(Auditable auditable) {
+    AuditCode code = auditable.value();
+    // ...
+}
+```
+
+## Advice - 파라미터와 제네릭
+- Spring AOP는 제네릭도 지원한다.
+
+```java
+public interface Sample<T> {
+    void sampleGenericMethod(T param);
+    void sampleGenericCollectionMethod(Collection<T> param);
+}
+```
+
+- Advice의 파라미터의 타입으로 매칭을 제한할 수 있다.
+
+```java
+@Before("execution(* ..Sample+.sampleGenericMethod(*)) && args(param)")
+public void beforeSampleMethod(MyType param) {
+    // Advice implementation
+}
+```
+
+- 아래의 Collection은 내부의 모든 엘리먼트를 검사해야 하고 null이 포함되면 결정할 수 없기 때문에 **지원하지 않는다.**
+
+```java
+@Before("execution(* ..Sample+.sampleGenericCollectionMethod(*)) && args(param)")
+public void beforeSampleMethod(Collection<MyType> param) {
+    // Advice implementation
+}
+```
+
+- 꼭 해야 한다면, Advice의 파라미터 타입을 `Collection<?>`으로 지정하고 Advice 내에서 검사할 수 있다.
+
+## Advice - argNames 속성
+- 포인트컷 표현식에서 파라미터 이름으로 매칭하는 방법을 제공한다.
+- `@Pointcut` 과 Advice 에는 모두 argNames 속성을 옵션으로 제공한다.
+
+```java
+@Before(value="com.xyz.lib.Pointcuts.anyPublicMethod() && target(bean) && @annotation(auditable)",
+        argNames="bean,auditable")
+public void audit(Object bean, Auditable auditable) {
+    AuditCode code = auditable.value();
+    // ... use code and bean
+}
+```
+
+## Advice - Argument 로 proceed 호출
+Around Advice에서 Argument를 넘기는 방법은 다음과 같다.
+
+```java
+@Around("execution(List<Account> find*(..)) && " +
+        "com.xyz.myapp.CommonPointcuts.inDataAccessLayer() && " +
+        "args(accountHolderNamePattern)")
+public Object preProcessQueryPattern(ProceedingJoinPoint pjp, String accountHolderNamePattern) throws Throwable {
+
+    String newPattern = preProcess(accountHolderNamePattern);
+    return pjp.proceed(new Object[] {newPattern});
+}
+```
+
+## Advice - Ordering
+- 같은 조인포인트에 여러 Advice가 적용된다면 `org.springframework.core.Ordered`를 implements 하거나 `@Order`로 우선순위를 결정할 수 있다.
+- Order의 우선순위는 숫자가 낮을 수록 높은 우선순위를 가진다.
+
+## Introductions
+- Introduction을 사용하면 adviced 된 객체를 특정 인터페이스의 구현체인 것처럼 동작하게 만들 수 있다.
+
+```java
+@Aspect
+@Component
+public class UsageTracking {
+
+    @DeclareParents(value="com.xzy.myapp.service.*+", defaultImpl=DefaultUsageTracked.class)
+    public static UsageTracked mixin;
+
+    @Before("com.xyz.myapp.CommonPointcuts.businessService() && this(usageTracked)")
+    public void recordUsage(UsageTracked usageTracked) {
+        usageTracked.incrementUseCount();
+    }
+
+}
+```
+
+- `@DeclareParents`를 통해 introduction을 생성할 수 있으며 value 값인 `com.xyz.myapp.service.*+` 패키지에 속한 bean들이 `UsageTracked` 인터페이스의 구현체가 된다.
+- 다음의 코드로 `UsageTracked` 의 구현체인지 확인할 수 있다.
+
