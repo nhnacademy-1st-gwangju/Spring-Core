@@ -669,3 +669,135 @@ public class UsageTracking {
 - `@DeclareParents`를 통해 introduction을 생성할 수 있으며 value 값인 `com.xyz.myapp.service.*+` 패키지에 속한 bean들이 `UsageTracked` 인터페이스의 구현체가 된다.
 - 다음의 코드로 `UsageTracked` 의 구현체인지 확인할 수 있다.
 
+```java
+UsageTracked usageTracked = (UsageTracked) context.getBean("myService");
+```
+
+## AOP 선택 - Spring AOP vs Full AspectJ
+||Spring AOP|AspectJ|
+|--|--|--|
+|구현|순수 자바|자바 언어 확장 사용|
+|Goal|Simple Solution|Complete Solution|
+|특징|별도의 컴파일 과정 불필요|AspectJ compiler(ajc)가 필요|
+|Weaving|Runtime weaving|compile-time, post-compile, load-time weaving 지원|
+|대상|Spring Container에 의해 관리되는 `Spring Bean`|모든 객체들|
+|JoinPoint|Method 실행시에만 가능|Method 실행시, Constructor 실행시, field 참조시, field 할당시 등등|
+|성능|비교적 느리다|비교적 빠르다|
+
+## Spring AOP 선택 - @AspectJ vs XML
+- XML 설정은 순수한 POJO를 지원할 수 있다.
+- XML 설정파일에서 Aspect의 설정 내역을 명시적으로 확인할 수 있다.
+- XML과 Aspect의 설정이 분리되어 완벽하게 캡슐화되지 않는 단점이 있다.
+- XML 설정은 @AspectJ에 비해 포인트컷 표현식에 제약이 있다.
+
+## Spring AOP Proxies
+- Spring AOP는 JDK Proxy와 CGLIB을 활용하여 AOP 기능을 제공한다.
+- Target 메소드가 실행되는 시점에 IoC 컨테이너에 의해 Proxy 빈을 생성한다. (Runtime Weaving)
+- TargetObject(스프링 빈)가 인터페이스를 구현한 경우 JDK Proxy를 사용하고 그렇지 않은 경우는 CGLIB Proxy를 사용한다.
+
+![](https://velog.velcdn.com/images/songs4805/post/c7f7695f-c08d-4c02-8c7c-128238aebc87/image.png)
+
+## CGLIB 프록시 강제
+- 인터페이스의 존재와 상관없이 CGLIB을 사용하도록 설정하려면 proxy-target-class를 사용할 수 있다.
+
+```xml
+<aop:config proxy-target-class="true">
+    <!-- other beans defined here... -->
+</aop:config>
+```
+
+- `aspectj-autoproxy`를 사용하는 경우는 다음과 같이 설정한다.
+
+```xml
+<aop:aspectj-autoproxy proxy-target-class="true"/>
+```
+
+- `@EnableAspectJAutoProxy` 어노테이션은 다음과 같이 사용할 수 있다.
+
+```java
+@Configuration
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+public class AopConfig {
+}
+```
+
+## AOP 가 동작하지 않는 경우
+스프링 빈 내부에서 내부 메소드를 실행하는 경우, Proxy 가 개입할 수 없기 때문에 AOP 가 동작하지 않는다.
+
+### Aspect 설정
+```java
+@Aspect
+@Component
+public class AspectClass {
+
+    @Around("@annotation(testAnnotation)")
+    public void test(ProceedingJoinPoint pjp, TestAnnotation testAnnotation) {
+        try{
+            System.out.println("testAnnotaion 실행");
+            pjp.proceed();
+            System.out.println("testAnnotaion 종료");
+        }catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+### 업무 코드
+`businessLogic()` 메소드에서 `test1()` 메소드와 BService의 `test2()` 메소드를 호출한다.
+
+```java
+@Service
+public class AService {
+
+    @Autowired
+    BService bService;
+
+    public void businessLogic() {
+        test1();
+        bService.test2();
+    }
+
+    @TestAnnotation
+    public void test1() {
+        System.out.println("test1");
+    }
+
+}
+
+@Service
+public class BService {
+
+    @TestAnnotation
+    public void test2() {
+        System.out.println("test2");
+    }
+
+}
+```
+
+### 실행 결과
+- 예상
+
+```log
+testAnnotation 실행
+test1
+testAnnotation 종료
+testAnnotation 실행
+test2
+testAnnotation 종료
+```
+
+- 실제 결과
+
+```log
+test1
+testAnnotation 실행
+test2
+testAnnotation 종료
+```
+
+## Spring Framework에서 AOP 사용의 예
+- Transaction Management
+- Cache Abstraction
